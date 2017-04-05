@@ -32,45 +32,46 @@ void loop(){
 		turnOnPowerLED; //turn on power LED
 		turnOn7segDisplay;//turn on 7 seg display
 		display(1);//display ON on the 7 seg display
+		
+		//Code for making connection to the hub
+		if(digitalRead(setConnectionButton) == HIGH){//Do this when the connection button is pressed		
+			connectionVar++;
+		}
+		if(connectionVar%2 == 1){	
+			if(connectionToHub(1) == 1){ //Do this if connection to the hub is successful
+				turnOnConnectionMadeLED; //turn on LED to indicate that connection was made
+				sendPacket(deviceInfo);
+			}
+		}else if (connectionVar%2 == 0){ //if the connection button is unpressed
+			if(connectionToHub(0) == 1){ //Do this if disconnection is successful
+				turnOffConnectionLED; //trun connection LED off
+			}
+		}
+		
+		//Code for measuring temperature	
+		if(timer%5 == 0){
+			acquireTemp();
+			sendPacket(temperatureReading);
+		}
+
+		//Code for changing mode
+		if(digitalRead(setModeNutton) == HIGH){
+			mode++;
+		}
+		if(mode%3 == 0){
+			display(3); //display temperature
+		}else if (mode%3 == 2){
+			display(4);//display battery level
+		}else{
+			display(5);//display device ID
+		}
+		timer++;		
+		
 	}else if(digitalRead(setOnAndOffButton) == LOW){ //Do this when the power button is unpressed
 		display(2);//display OFF on the 7 seg display
 		turnOff7segDisplay;//turn off 7 seg display
 		turnOffPowerLED; //turn off power LED
-	}
-	
-	//Code for making connection to the hub
-	if(digitalRead(setConnectionButton) == HIGH){//Do this when the connection button is pressed		
-		connectionVar++;
-	}
-	if(connectionVar%2 == 1){	
-		if(connectionToHub(1) == 1){ //Do this if connection to the hub is successful
-			turnOnConnectionMadeLED; //turn on LED to indicate that connection was made
-			sendPacket(deviceInfo);
-		}
-	}else if (connectionVar%2 == 0){ //if the connection button is unpressed
-		if(connectionToHub(0) == 1){ //Do this if disconnection is successful
-			turnOffConnectionLED; //trun connection LED off
-		}
-	}
-		
-	//Code for measuring temperature	
-	if(timer%5 == 0){
-		acquireTemp();
-		sendPacket(temperatureReading);
-	}
-	
-	//Code for changing mode
-	if(digitalRead(setModeNutton) == HIGH){
-		mode++;
-	}
-	if(mode%3 == 0){
-		display(3); //display temperature
-	}else if (mode%3 == 2){
-		display(4);//display battery level
-	}else{
-		display(5);//display device ID
-	}
-	timer++;					
+	}	
 }
 
 /*Function: This function connects or disconnects the device to and from the hub. It will be called whenever 
